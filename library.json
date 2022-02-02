@@ -1,0 +1,27 @@
+{
+    "name": "pinIO",
+    "version": "0.0.1",
+    "description": "Local pin IO including the GPIO pins on the arduino and Expanders.",
+    "keywords": "GPIO IO MCP23017 I2C Expander",
+    "repository":
+    {
+      "type": "git",
+      "url": "https://github.com/jmnc2/pinIO.git"
+    },
+    "authors":
+    [
+      {
+        "name": "jmnc2",
+        "email": "49760581+jmnc2@users.noreply.github.com",
+        "url": "https://github.com/jmnc2/pinIO",
+        "maintainer": true
+
+      }
+    ],
+    "dependencies": {
+    },
+    "license": "MIT",
+    "homepage": "https://github.com/jmnc2",
+    "frameworks": "*",
+    "platforms": "*"
+  }
