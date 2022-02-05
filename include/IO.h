@@ -1,3 +1,14 @@
+/**
+ * @file IO.h
+ * @author your name (you@domain.com)
+ * @brief Expander chip IO, only i2c MCP23017 for now.
+ * May add 74HC595(out), 74HC165(input) shift register etc. later.
+ * @version 0.1
+ * @date 2022-02-04
+ * 
+ * @copyright Copyright (c) 2022
+ * 
+ */
 #ifndef _IO_h
 #define _IO_h
 

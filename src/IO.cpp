@@ -1,3 +1,13 @@
+/**
+ * @file IO.cpp
+ * @author your name (you@domain.com)
+ * @brief Expander IO, i2c MCP23017 for now
+ * @version 0.1
+ * @date 2022-02-04
+ * 
+ * @copyright Copyright (c) 2022
+ * 
+ */
 #include <Wire.h>
 #include <Arduino.h>
 #include "IO.h"

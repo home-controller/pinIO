@@ -1,10 +1,10 @@
 //#include "html.h"
 #include "O.h" 
-#include "pStr.h"
-#include "mqtt.h"
+//#include "pStr.h"
+//#include "mqtt.h"
 #include "defs.h"
 #include <Arduino.h>
-#include "s.h"
+//#include "s.h"
 #include "IO.h"
 
 extern char value_on[3];// = {2, 'o', 'n'};
@@ -65,7 +65,7 @@ void UpdateRelayStateI2c(byte n, byte v){// n = 1 for first relay
   }
 }
 
-void UpdateRelayState(byte n, byte v, bool updateMqtt = true){// n = 1 for first relay
+void UpdateRelayState(byte n, byte v, bool updateMqtt){// n = 1 for first relay
   //This should be the only function used to turn the relays on/off etc.
   // v = 0 to turn off & 1 to turn on
 //#define _debug_relays

@@ -4,14 +4,14 @@
 #include <Arduino.h>
 #include "O.h"
 #include <avr/wdt.h>
-#include <EEPROM.h>
-#include "mqtt.h"
+//#include <EEPROM.h>
+//#include "mqtt.h"
 
 
-byte pinsA_in[no_of_switchs]  = { inPins };
+byte pinsA_in[no_of_switches]  = { inPins };
 
 //for more than 8 switch inputs will need to change type of use array.
-byte switchState[no_of_switchs];// 0 = off, 1 = on
+byte switchState[no_of_switches];// 0 = off, 1 = on
 byte switchOnVal in_initHLa;// eg set bit to 1 for logic high being on(5v) and 0 for logic low being on.
 unsigned long lastMils = millis();
 
@@ -27,8 +27,8 @@ boolean ReadSwitch(byte i){ //digitalRead() don't works with A6 and A7. Also mov
 
 void SetUpInputs(){
   byte i;
-  Serial.println(F("Todo: still only MCU pins input. No expanders") );
-  for(i=0; i<no_of_switchs;i++){
+  Serial.println(F("Todo: still only MCU pins input. No expanders") );//expanders etc. should be in different unit maybe.
+  for(i=0; i<no_of_switches;i++){
     Serial.print(F("MCU pin '") ); Serial.print(pinsA_in[i]); Serial.print(F("' set to input, Switch No. = ") ); Serial.println(i);
     pinMode(pinsA_in[i], INPUT_PULLUP);      // sets the input pins as input. Pullup works on A0 to A5 but A6 & A7 still float
     //pinMode(pinsA_in[i], INPUT);      // sets the input pins as input. If not use pullup may be able to detect bad conection.
@@ -66,7 +66,7 @@ void getInputStates(){
   Serial.println(F("entering getInputStates()") );
 #endif
   
-  for(i=0; i<no_of_switchs;i++){
+  for(i=0; i<no_of_switches;i++){
     if( ReadSwitch(i) ) {
       switchState[i] |= 0b10; 
       //newSwitchState |= (1 << i);
@@ -99,79 +99,62 @@ void getInputStates(){
 /** Check for changes no more than 1/8 of a second, If sending mqtt or web page may be longer?. Should be good for debounce?
   * If same switch changes again in less than 2 seconds add one to switch state to max of 8. 
   * stateVar      : 0b0000 0000 
-  *  state          : 0b0000 0001  Fully updated state, incloulding updated mqtt etc. 0 = off 1 = on
+  *  state          : 0b0000 0001  Fully updated state, including updated mqtt etc. 0 = off 1 = on
   *  current state  : 0b0000 0010  State at last check. Current switch state but count may still be updating etc. 0 = off 1 = on 
-  *  change count   : 0b0000 1100  Number of changes within 0.1 and 2 seconds betwean changes. max changes 8, maybe 7. Use diference of bit 1 and 2 as first bit
-  *  time         : 0b1111 0000 time in 1/8 seconds since last change. Within aprox 1/8 second
+  *  change count   : 0b0000 1100  Number of changes within 0.1 and 2 seconds betwean changes. max changes 8, maybe 7. Use difference of bit 1 and 2 as first bit
+  *  time         : 0b1111 0000 time in 1/8 seconds since last change. Within approx 1/8 second
 **/
 
-void groupSet(byte i, byte relays9_16, byte relays1_8, byte opts = 0){
-  byte g_index;
-  if ( i >= No_groups){ return; }
-  g_index = groups_eeprom_start + (i*group_size);
-  EEPROM.update(g_index+0, relays1_8);
-  EEPROM.update(g_index+1, relays9_16);
-  EEPROM.update(g_index+2, opts);
-  groupsSateA[i+1] = 0;
-}
 
-void setSwitchGroups(byte switchN, byte quick_i, byte normal_i, byte count2_i, byte count3_i, byte count4_i){
-  byte i;
-  if ( switchN >= No_switches_eeprom_res){ return; }
-  i = switches_eeprom_start + (switches_size * switchN);
-  EEPROM.update(i, quick_i);
-  EEPROM.update(i+1, normal_i);
-  EEPROM.update(i+2, count2_i);
-  EEPROM.update(i+3, count3_i);
-  EEPROM.update(i+4, count4_i);
-}
 
 
 void Switched(byte sw_i, byte count, byte state){// Count 0 is quick on. sw = 0 for first switch
-  byte i_index, g_index, i, opt;
-  word groupmask;
-  i = switches_eeprom_start + (switches_size * sw_i) + count;
-  EEPROM.get(i, i_index);
-  g_index = groups_eeprom_start + (i_index*group_size);
-  EEPROM.get(g_index, groupmask);
-  EEPROM.get(g_index+2, opt);
-  //#ifdef _debug_switchs
-  #ifdef _term_v
-  Serial.print(F("Switch index: ") ); Serial.print(sw_i);  Serial.print(F(", count: ") ); Serial.print(count);  Serial.print(F(", Group index: ") ); Serial.print(i_index);  Serial.print(F(", groupmask: b") ); Serial.print(groupmask, BIN);Serial.print(F(", "));
-  #endif
-  i=1;
-  while (groupmask > 0){
-    if(groupmask & 0b1){
-      //todo Need to add togle relay etc. Only does hard set to switch pos at min.
-      if(count = 1){
-        UpdateRelayState(i, (groupsSateA[i_index+1] & 0b1) );
-      }
-      else if(count = 0){
-        UpdateRelayState(i,1,false);
-      }
-      else {
-        if(opt == 0){ UpdateRelayState(i,0);}//UpdateRelayState() first relay = 1;}
-        else if(opt == 1){ UpdateRelayState(i,1);}//UpdateRelayState() first relay = 1;}
-        else if(opt == 4){ UpdateRelayState(i,state);}//UpdateRelayState() first relay = 1;}
-        else if(opt == 5){
-          if(count == 2){UpdateRelayState(i,1);}//UpdateRelayState() first relay = 1;}
-          if(count == 3){UpdateRelayState(i,0);}//UpdateRelayState() first relay = 1;}
-        }
-      }
-    }
-    i++;
-    groupmask =  groupmask >> 1;
-  }
-      if(count = 1){
-        groupsSateA[i_index+1] = groupsSateA[i_index+1] xor 0b1; // i starts at 1
-      }
-      else if(count > 1){
-        groupsSateA[i_index+1] = state & 0b1;//groupsSateA[0] is array length - 1(not counting [0])
-      }
+// some of this should be moved to elseware this lib should just keep track of what switch was switched and 
+// maybe call a function pointer to handel any switching of lights etc.
+  // byte i_index, g_index, i, opt;
+  // word groupmask;
+  // i = switches_eeprom_start + (switches_size * sw_i) + count;
+  // EEPROM.get(i, i_index);
+  // g_index = groups_eeprom_start + (i_index*group_size);
+  // EEPROM.get(g_index, groupmask);
+  // EEPROM.get(g_index+2, opt);
+  // //#ifdef _debug_switchs
+  // #ifdef _term_v
+  // Serial.print(F("Switch index: ") ); Serial.print(sw_i);  Serial.print(F(", count: ") ); Serial.print(count);  Serial.print(F(", Group index: ") ); Serial.print(i_index);  Serial.print(F(", groupmask: b") ); Serial.print(groupmask, BIN);Serial.print(F(", "));
+  // #endif
+  // i=1;
+  // while (groupmask > 0){
+  //   if(groupmask & 0b1){
+  //     //todo Need to add toggle relay etc. Only does hard set to switch pos at min.
+  //     if(count == 1){
+  //       UpdateRelayState(i, (groupsSateA[i_index+1] & 0b1) );
+  //     }
+  //     else if(count == 0){
+  //       UpdateRelayState(i,1,false);
+  //     }
+  //     else {
+  //       if(opt == 0){ UpdateRelayState(i,0);}//UpdateRelayState() first relay = 1;}
+  //       else if(opt == 1){ UpdateRelayState(i,1);}//UpdateRelayState() first relay = 1;}
+  //       else if(opt == 4){ UpdateRelayState(i,state);}//UpdateRelayState() first relay = 1;}
+  //       else if(opt == 5){
+  //         if(count == 2){UpdateRelayState(i,1);}//UpdateRelayState() first relay = 1;}
+  //         if(count == 3){UpdateRelayState(i,0);}//UpdateRelayState() first relay = 1;}
+  //       }
+  //     }
+  //   }
+  //   i++;
+  //   groupmask =  groupmask >> 1;
+  // }
+  //     if(count = 1){
+  //       groupsSateA[i_index+1] = groupsSateA[i_index+1] xor 0b1; // i starts at 1
+  //     }
+  //     else if(count > 1){
+  //       groupsSateA[i_index+1] = state & 0b1;//groupsSateA[0] is array length - 1(not counting [0])
+  //     }
   
-  if (mqtt_client.connected()) {
-    MqttPushSwitchState(i, state);
-  }
+  // if (mqtt_client.connected()) {
+  //   MqttPushSwitchState(i, state);
+  // }
 }
 
 void SwitchesExe(){
@@ -181,7 +164,7 @@ void SwitchesExe(){
 #endif
   if( (millis() - lastMils ) < (125) ) return ; // 1/8th of a second
   getInputStates();//update the curent switch state bit. Just that no turning on lights etc.
-  for (i=0;i<no_of_switchs;i++){
+  for (i=0;i<no_of_switches;i++){
     if(switchState[i] == 0 or switchState[i] == 0b11) { continue;}// If everything is up to date then skip to check next switch;
     state1 = switchState[i] & 0b1;
     state2 = (switchState[i] >> 1) & 0b1;
