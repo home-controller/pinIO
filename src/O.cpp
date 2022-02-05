@@ -1,6 +1,6 @@
 //#include "html.h"
 #include "O.h" 
-//#include "pStr.h"
+#include <pasStr.h>
 //#include "mqtt.h"
 #include "defs.h"
 #include <Arduino.h>
@@ -11,7 +11,7 @@ extern char value_on[3];// = {2, 'o', 'n'};
 extern char value_off[4];
 ;
 
-//declaire in main or setup
+//declare in main or setup
   //byte pinsA[no_of_relays]  = { relayPins };
   //byte pinsTypeA[no_of_relays];//0: mcu pins, 1: i2c_MCP23017, 5:shift register
 
@@ -88,7 +88,7 @@ void UpdateRelayState(byte n, byte v, bool updateMqtt){// n = 1 for first relay
     #endif
     return;
   }
-  n--;//as the arrays start at 0 for the first elemet 0 will be relay 1 from here.
+  n--;//as the arrays start at 0 for the first element, 0 will be relay 1 from here.
 //#define _debug_relays
 #ifdef _debug_relays
   Serial.print(F("pin = "));
@@ -108,7 +108,8 @@ void UpdateRelayState(byte n, byte v, bool updateMqtt){// n = 1 for first relay
     Serial.print( F("Unknown expander type: ") );Serial.print(pinsTypeA[n]);
     #endif
   }
-  if( updateMqtt and EthernetConected) MqttPushRelayState(n+1);//n had 1 subtracted above to work with 0 index arrays so +1 here.
+  //if( updateMqtt and EthernetConnected) MqttPushRelayState(n+1);//n had 1 subtracted above to work with 0 index arrays so +1 here.
+  // todo: may need to add call back func so turning on lights, mqtt etc. can be handeled at a highter level
   #ifdef _term_v
   Serial.print( F("Turn light ") );
   Serial.print(n+1);
