@@ -1,11 +1,19 @@
 /**
  * @file I.h
- * @author your name (you@domain.com)
- * @brief handels local input MCU pins and expander etc.(connected to a switch.)
+ * @author jmnc2 (you@domain.com)
+ * @brief handels local input MCU pins.(connected to a switch.)
  * @version 0.1
  * @date 2022-02-03
  * 
  * @copyright Copyright (c) 2022
+ * 
+ * example use:
+ * at top of main.h or .ino etc. add
+ *   1: #define pinIO_no_of_switches 5 //setup the number of gpio's used
+ *   2: #define pinIO_inPins A7,A6,A0,A1,A2 in sa main.h
+ *   3: byte pinIO_switchState[pinIO_no_of_switches]; byte pinIO_pinsA_in[pinIO_no_of_switches];
+ * Then in main loop.
+ *   1: pinIO_SwitchesExe(); needs to be called in the main loop, hopefully at least every 1/4 second or may mess up switch flick count.
  * 
  */
 #ifndef _in_h
@@ -18,8 +26,8 @@
 
 // TODO: move setup vars to extern and define in main.c or s.c  ?
 //              0  1  2  3  4
-#define inPins A7,A6,A0,A1,A2
-#define no_of_switches 5
+// #define inPins A7,A6,A0,A1,A2
+// #define no_of_switches 5
 #define in_initHLa = B00000011  //{HIGH,HIGH}// the value to use to for on.
 
 /*
@@ -28,12 +36,6 @@
  * 2, 3: all hard on/off
  */
 
-//extern byte pinsA_in[no_of_switches];
-/*pinsA_in array with each byte:
- *      
- *        
- */
-extern byte pinsA_in[];
 
 /** Check for changes no more than 1/8 of a second, If sending mqtt or web page may be longer?. Should be good for debounce?
   * If same switch changes again in less than 2 seconds add one to switch state to max of 8. 
@@ -43,12 +45,15 @@ extern byte pinsA_in[];
   *  change count   : 0b0000 1100  Number of changes within 0.1 and 2 seconds betwean changes. max changes 8, maybe 7. Use difference of bit 1 and 2 as first bit
   *  time         : 0b1111 0000 time in 1/8 seconds since last change. Within approx 1/8 second
 **/
-extern byte switchState[no_of_switches];// 0 = off, 1 = on
+extern byte pinIO_Max_switches;
+extern byte pinIO_switchState[];// 0 = off, 1 = on
+
+extern byte pinIO_pinsA_in[];
 //extern byte switchOnVal;// eg 0 for pull the relay LOW to turn on, 1 for pull high. Pull opposite to turn off. Or should it be set to input to turn off?
 
-extern byte switchInfo[no_of_switches][3];
+//extern byte switchInfo[no_of_switches][3];
 
-extern byte groupsSateA[];
+//extern byte groupsSateA[];
 
 
 void SetUpInputs();

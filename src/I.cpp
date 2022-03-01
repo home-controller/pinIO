@@ -1,23 +1,17 @@
 
 #include "I.h"
-#include "defs.h"
+#include <defs.h>
 #include <Arduino.h>
 #include "O.h"
 #include <avr/wdt.h>
 //#include <EEPROM.h>
 //#include "mqtt.h"
 
-
-byte pinsA_in[no_of_switches]  = { inPins };
-
-//for more than 8 switch inputs will need to change type of use array.
-byte switchState[no_of_switches];// 0 = off, 1 = on
-byte switchOnVal in_initHLa;// eg set bit to 1 for logic high being on(5v) and 0 for logic low being on.
 unsigned long lastMils = millis();
 
 boolean ReadSwitch(byte i){ //digitalRead() don't works with A6 and A7. Also moved looking up the pin from switch No. index here.
   byte pin;
-  pin = pinsA_in[i];
+  pin = pinIO_pinsA_in[i];
   if ( (pin == A6) or (pin == A7) ){
     if ( analogRead(pin) > 600 ) {return HIGH; }
     return LOW;
@@ -28,28 +22,28 @@ boolean ReadSwitch(byte i){ //digitalRead() don't works with A6 and A7. Also mov
 void SetUpInputs(){
   byte i;
   Serial.println(F("Todo: still only MCU pins input. No expanders") );//expanders etc. should be in different unit maybe.
-  for(i=0; i<no_of_switches;i++){
-    Serial.print(F("MCU pin '") ); Serial.print(pinsA_in[i]); Serial.print(F("' set to input, Switch No. = ") ); Serial.println(i);
-    pinMode(pinsA_in[i], INPUT_PULLUP);      // sets the input pins as input. Pullup works on A0 to A5 but A6 & A7 still float
-    //pinMode(pinsA_in[i], INPUT);      // sets the input pins as input. If not use pullup may be able to detect bad conection.
+  for(i=0; i<pinIO_Max_switches;i++){
+    Serial.print(F("MCU pin '") ); Serial.print(pinIO_pinsA_in[i]); Serial.print(F("' set to input, Switch No. = ") ); Serial.println(i);
+    pinMode(pinIO_pinsA_in[i], INPUT_PULLUP);      // sets the input pins as input. Pullup works on A0 to A5 but A6 & A7 still float
+    //pinMode(pinsA_in[i], INPUT);      // sets the input pins as input. If not use pullup may be able to detect bad connection.
     if(ReadSwitch(i) ) {
-      switchState[i] = 0b11;
+      pinIO_switchState[i] = 0b11;
     } else {
-      switchState[i] = 0b0;
+      pinIO_switchState[i] = 0b0;
     }
   }
 }
 
 void debugSwitch(byte i){
   Serial.print(F("pin state: ") );  Serial.print(ReadSwitch(i) );  Serial.print(F(", i: ") );  Serial.print(i);  Serial.print(F(", pin: ") );
-  if(pinsA_in[i] >= A0){ Serial.print(pinsA_in[i]); Serial.print('(');Serial.print('A'); Serial.print(pinsA_in[i]- A0); Serial.print(')');}
-  else Serial.print(pinsA_in[i]);  
-  Serial.print(F(", saved: b") );    Serial.print(switchState[i] & 0b1, BIN);
-  Serial.print(F(", New: b") );  Serial.print((switchState[i] >>1) & 0b1, BIN);
-  Serial.print(F(", Count: b") );  Serial.print((switchState[i] >>2) & 0b11, BIN);
-  Serial.print(F(", 1/8s: b") );  Serial.print((switchState[i])>>4, BIN);
-  Serial.print(F(", switchState[i]: ") ); Serial.print(switchState[i], BIN);
-  Serial.print(F(", analogRead: ") ); Serial.println(analogRead(pinsA_in[i]));
+  if(pinIO_pinsA_in[i] >= A0){ Serial.print(pinIO_pinsA_in[i]); Serial.print('(');Serial.print('A'); Serial.print(pinIO_pinsA_in[i]- A0); Serial.print(')');}
+  else Serial.print(pinIO_pinsA_in[i]);  
+  Serial.print(F(", saved: b") );    Serial.print(pinIO_switchState[i] & 0b1, BIN);
+  Serial.print(F(", New: b") );  Serial.print((pinIO_switchState[i] >>1) & 0b1, BIN);
+  Serial.print(F(", Count: b") );  Serial.print((pinIO_switchState[i] >>2) & 0b11, BIN);
+  Serial.print(F(", 1/8s: b") );  Serial.print((pinIO_switchState[i])>>4, BIN);
+  Serial.print(F(", switchState[i]: ") ); Serial.print(pinIO_switchState[i], BIN);
+  Serial.print(F(", analogRead: ") ); Serial.println(analogRead(pinIO_pinsA_in[i]));
   
 }
 
@@ -58,34 +52,34 @@ void getInputStates(){
   //This will overwrite the value without updating any other bits, eg. count.
   byte i;
   // If any pins are A6 or A7 on arduino digital read and INPUT_PULLUP don't work.
-#ifdef _debug_switchs
-  //#define _debug_switchs_gis
+#ifdef _debug_switches
+  //#define _debug_switches_gis
 #endif
-//#define _debug_switchs_gis
-#ifdef _debug_switchs_gis
+//#define _debug_switches_gis
+#ifdef _debug_switches_gis
   Serial.println(F("entering getInputStates()") );
 #endif
   
-  for(i=0; i<no_of_switches;i++){
+  for(i=0; i<pinIO_Max_switches;i++){
     if( ReadSwitch(i) ) {
-      switchState[i] |= 0b10; 
+      pinIO_switchState[i] |= 0b10; 
       //newSwitchState |= (1 << i);
     } else {            //76543210
-      switchState[i] &= 0b11111101;//(~(0b10));
+      pinIO_switchState[i] &= 0b11111101;//(~(0b10));
       //newSwitchState &= ~(1 << i); // bit clear;
     }
 /*    
   * switchState[i]: 
-  *  state          : 0b0000 0001  Fully updated state, incloulding updated mqtt etc. 0 = off 1 = on
+  *  state          : 0b0000 0001  Fully updated state, including updated mqtt etc. 0 = off 1 = on
   *  current state  : 0b0000 0010  State at last check. Current switch state but count may still be updating etc. 0 = off 1 = on 
-  *  change count   : 0b0000 1100  Number of changes within 0.1 and 2 seconds betwean changes. max changes 8, maybe 7. Use diference of bit 1 and 2 as first bit
-  *  time         : 0b1111 0000 time in 1/8 seconds since last change. Within aprox 1/8 second
+  *  change count   : 0b0000 1100  Number of changes within 0.1 and 2 seconds betwean changes. max changes 8, maybe 7. Use difference of bit 1 and 2 as first bit
+  *  time         : 0b1111 0000 time in 1/8 seconds since last change. Within approx 1/8 second
 */
-#ifdef _debug_switchs_gis 
+#ifdef _debug_switches_gis 
  debugSwitch(i);
 #endif
   }
-#ifdef _debug_switchs_gis
+#ifdef _debug_switches_gis
   wdt_disable();
   delay(10000);
   wdt_enable(WDTO_8S);
@@ -118,7 +112,7 @@ void Switched(byte sw_i, byte count, byte state){// Count 0 is quick on. sw = 0 
   // g_index = groups_eeprom_start + (i_index*group_size);
   // EEPROM.get(g_index, groupmask);
   // EEPROM.get(g_index+2, opt);
-  // //#ifdef _debug_switchs
+  // //#ifdef _debug_switches
   // #ifdef _term_v
   // Serial.print(F("Switch index: ") ); Serial.print(sw_i);  Serial.print(F(", count: ") ); Serial.print(count);  Serial.print(F(", Group index: ") ); Serial.print(i_index);  Serial.print(F(", groupmask: b") ); Serial.print(groupmask, BIN);Serial.print(F(", "));
   // #endif
@@ -159,17 +153,18 @@ void Switched(byte sw_i, byte count, byte state){// Count 0 is quick on. sw = 0 
 
 void SwitchesExe(){
   byte i, state1,state2, count1, time1;
-#ifdef _debug_switchs
+#ifdef _debug_switches
   //Serial.println(F("entering SwitchesExe()") );
 #endif
-  if( (millis() - lastMils ) < (125) ) return ; // 1/8th of a second
+  if( (millis() - lastMils ) < (125) ) return ; // 1/8th of a second. If called just under 1/8 of a second and again 1/8 later.
+  // Could be 1/4 second betwean switch checks even when called at close to every 1/8th second.
   getInputStates();//update the curent switch state bit. Just that no turning on lights etc.
-  for (i=0;i<no_of_switches;i++){
-    if(switchState[i] == 0 or switchState[i] == 0b11) { continue;}// If everything is up to date then skip to check next switch;
-    state1 = switchState[i] & 0b1;
-    state2 = (switchState[i] >> 1) & 0b1;
-    count1 = (switchState[i] >> 2) & 0b11; //bits B00001100
-    time1 = switchState[i] >> 4;
+  for (i=0;i<pinIO_Max_switches;i++){
+    if(pinIO_switchState[i] == 0 or pinIO_switchState[i] == 0b11) { continue;}// If everything is up to date then skip to check next switch;
+    state1 = pinIO_switchState[i] & 0b1;
+    state2 = (pinIO_switchState[i] >> 1) & 0b1;
+    count1 = (pinIO_switchState[i] >> 2) & 0b11; //bits B00001100
+    time1 = pinIO_switchState[i] >> 4;
     if(state1 ==  state2){// work out if switch changed when state(see above) are the same
       if(count1 & 0b1){ // if count is an odd number and states are the same then changed.
         // count odd and state1 = state2, hence switch has changed position
@@ -189,7 +184,7 @@ void SwitchesExe(){
         time1 = 0;//reset time since last change
         //Serial.print(F("Switch ") ); Serial.print(i); Serial.print(F(" changed. line:") ); Serial.println(__LINE__);
         if(count1 == 0){
-  #ifdef _debug_switchs
+  #ifdef _debug_switches
           Serial.print(F("Call quick light on func: ") );
   #endif
           Switched(i, 0, 1);// Switch relays etc.
@@ -203,19 +198,19 @@ void SwitchesExe(){
         
     }
     if (count1 >= 4 || time1 >= 0b1111){// reched max change count or time since last change > 2 seconds
-#ifdef _debug_switchs
+#ifdef _debug_switches
       Serial.print(F("Switch state update ") ); Serial.print(F(", count1 = ") ); Serial.print(count1);  Serial.print(F(", timeout in 1/8 seconds = ") ); Serial.print(time1);
       Serial.print(F(", switch No. = ") ); Serial.println(i);
 #endif
       //count1 = (count1  >> 1) + 1; 
       Switched(i, count1, state2);// Switch relays etc.
       //and update switchState[i] to curent state
-      if (state2 > 0) switchState[i] = 0b11;
-      else switchState[i] = 0;
+      if (state2 > 0) pinIO_switchState[i] = 0b11;
+      else pinIO_switchState[i] = 0;
     } else {
-      switchState[i] &= 0b11;
-      switchState[i] |= (count1 << 2);
-      switchState[i] |= (time1 << 4);
+      pinIO_switchState[i] &= 0b11;
+      pinIO_switchState[i] |= (count1 << 2);
+      pinIO_switchState[i] |= (time1 << 4);
       
     }
     
