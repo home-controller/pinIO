@@ -18,7 +18,7 @@
  *    pinMode()
  *    digitalWrite()
  *    digitalRead() 
- * and possably adding the analog equivilents later.
+ * and possably adding the analog equivalents later.
  * 
  * And also the bitmap vertions for each port register.
  */
