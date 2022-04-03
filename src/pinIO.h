@@ -15,13 +15,13 @@
  *   2: i2c MCP23017 todo: input, output only so far
  *  
  * 
- * @version 0.0.1
+ * @version 0.0.5
  * @date 2022-02-05
  * 
  * @copyright Copyright (c) 2022
  * 
  */
-#ifndef _pinIO_h
+//#ifndef _pinIO_h
 #define _pinIO_h
 
 /**
@@ -31,12 +31,16 @@
  * expanders next then shift registers 
  * 
  */
-extern byte inputIOMap[];// this should probably be storage/eeprom.
-
-void printPinIOinfo();
-
 #include <Arduino.h>
 #include <Wire.h>
 #include <pasStr.h>
 
-#endif
+
+void pinIO_SwitchesExe();
+
+void printPinIOinfo();
+void setupPinIO();
+
+
+
+//#endif
