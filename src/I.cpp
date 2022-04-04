@@ -268,7 +268,6 @@ void SwitchesExe()
       if ((count1 & 0b1) == 0)
       { // check if switch state changed since last call.
         // count is even and state1 != pinState, hence changed
-        count1++;  // as changed add to changed count
         time1 = 0; // reset time since last change
         // Serial.print(F("Switch ") ); Serial.print(i); Serial.print(F(" changed. line:") ); Serial.println(__LINE__);
         if (count1 == 0)
@@ -278,6 +277,7 @@ void SwitchesExe()
 #endif
           Switched(i, 0, 1); // Switch relays etc.
         }
+        count1++;  // as changed add to changed count
       }
       else
       { // if not change then add to time since last switch
