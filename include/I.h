@@ -70,7 +70,7 @@ void setSwitchGroups(byte switchN, byte quick_i, byte normal_i, byte count2_i, b
  * @param state new state of the switch IO pin.
  * @param quick true if still counting flicks
  */
-extern void gotInputPin(byte ioType, byte i, byte count, byte state, bool quick);
+extern void gotInputPin(byte ioType, byte i, byte count, byte state);
 void debugSwitch(byte i);
 
 #endif

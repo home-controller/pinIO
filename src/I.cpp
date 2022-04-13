@@ -176,52 +176,7 @@ void Switched(byte sw_i, byte count, byte state)
   // some of this should be moved to elseware this lib should just keep track of what switch was switched and
   // maybe call a function pointer to handle any switching of lights etc.
   Serial.println(F("Called Switched"));
-  gotInputPin( ioLocalPin, sw_i, count, state, false );
-  //debugSwitch(sw_i);
-  // byte i_index, g_index, i, opt;
-  // word groupmask;
-  // i = switches_eeprom_start + (switches_size * sw_i) + count;
-  // EEPROM.get(i, i_index);
-  // g_index = groups_eeprom_start + (i_index*group_size);
-  // EEPROM.get(g_index, groupmask);
-  // EEPROM.get(g_index+2, opt);
-  // //#ifdef _debug_switches
-  // #ifdef _term_v
-  // Serial.print(F("Switch index: ") ); Serial.print(sw_i);  Serial.print(F(", count: ") ); Serial.print(count);  Serial.print(F(", Group index: ") ); Serial.print(i_index);  Serial.print(F(", groupmask: b") ); Serial.print(groupmask, BIN);Serial.print(F(", "));
-  // #endif
-  // i=1;
-  // while (groupmask > 0){
-  //   if(groupmask & 0b1){
-  //     //todo Need to add toggle relay etc. Only does hard set to switch pos at min.
-  //     if(count == 1){
-  //       UpdateRelayState(i, (groupsSateA[i_index+1] & 0b1) );
-  //     }
-  //     else if(count == 0){
-  //       UpdateRelayState(i,1,false);
-  //     }
-  //     else {
-  //       if(opt == 0){ UpdateRelayState(i,0);}//UpdateRelayState() first relay = 1;}
-  //       else if(opt == 1){ UpdateRelayState(i,1);}//UpdateRelayState() first relay = 1;}
-  //       else if(opt == 4){ UpdateRelayState(i,state);}//UpdateRelayState() first relay = 1;}
-  //       else if(opt == 5){
-  //         if(count == 2){UpdateRelayState(i,1);}//UpdateRelayState() first relay = 1;}
-  //         if(count == 3){UpdateRelayState(i,0);}//UpdateRelayState() first relay = 1;}
-  //       }
-  //     }
-  //   }
-  //   i++;
-  //   groupmask =  groupmask >> 1;
-  // }
-  //     if(count = 1){
-  //       groupsSateA[i_index+1] = groupsSateA[i_index+1] xor 0b1; // i starts at 1
-  //     }
-  //     else if(count > 1){
-  //       groupsSateA[i_index+1] = state & 0b1;//groupsSateA[0] is array length - 1(not counting [0])
-  //     }
-
-  // if (mqtt_client.connected()) {
-  //   MqttPushSwitchState(i, state);
-  // }
+  gotInputPin( ioLocalPin, sw_i, count, state);
 }
 
 void SwitchesExe()

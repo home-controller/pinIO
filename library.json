@@ -1,6 +1,6 @@
 {
     "name": "pinIO",
-    "version": "0.0.8",
+    "version": "0.0.9",
     "description": "Local pin IO including the GPIO pins on the arduino and Expanders.",
     "keywords": "GPIO IO MCP23017 I2C Expander",
     "repository":
