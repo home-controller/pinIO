@@ -13,50 +13,58 @@
 #include "I.h"
 #include <ui_io.h>
 
-void setupPinIO()
-{
-    SetUpInputs();
+ /**
+  * @brief Construct a new pinIO C::pinIO C object
+  *
+  * @param outPinsA byte array of GPIO pin numbers e.g. connected to a relay, LED etc.
+  * @param numOut size of the above array.
+  * @param inPinsA  byte array of GPIO pin numbers e.g. connected to a wall switch etc.
+  * @param numIn
+  */
+pinIO_C::pinIO_C(byte outPinsA[ ], byte numOut, byte inPinsA[ ], byte numIn) {
+    outGPIO_pinsA = outPinsA;
+    numberOutPins = numOut;
+    inGPIO_pinsA = inPinsA;
+    numberInPins = numIn;
+
 }
 
-void pinIO_SwitchesExe()
-{
-    SwitchesExe();
+void pinIO_C::printOutputInfo() {
+    byte i;
+    io_print("Number GPIO output pins:");
+    io_println_n(numberOutPins);
+    for (i = 0; i < numberOutPins; i++) {
+        io_print("i:"); io_print_n(i);
+        //if (i > 0) io_print(", ");
+        io_print(", MCU pin:"); vtGreen; io_print_n(outGPIO_pinsA[i]);
+        if (outGPIO_pinsA[i] >= A0) {
+            Serial.print(F("(A"));
+            Serial.print(outGPIO_pinsA[i] - A0);
+            Serial.print(")");
+        }
+        vtResetColour; io_ln;
+    }
+
 }
 
 /**
- * @brief Print to console local IO Pin info, including expander, shift register etc.
+ * @brief Print to console local GPIO input Pin info, including expander, shift register etc.
  *
  */
-void printPinIOinfo()
-{
+void pinIO_C::printInputInfo() {
     byte i;
     // io_printHeading("Printing local IO setup");
-    io_print("Number of local input(switch) pins: ");
-    io_println_n(pinIO_Max_switches);
-    if (pinIO_Max_switches > 0)
-    {
-        io_print_n(pinIO_pinsA_in[i]);
-        if (pinIO_pinsA_in[i] >= A0)
-        {
-            Serial.print(F("(A"));
-            Serial.print(pinIO_pinsA_in[i] - A0);
-            Serial.print(")");
-        }
-    }
-    for (i = 1; i < pinIO_Max_switches; i++)
-    {
-        io_print(", ");
-        io_print_n(pinIO_pinsA_in[i]);
-        if (pinIO_pinsA_in[i] >= A0)
-        {
-            Serial.print(F("(A"));
-            Serial.print(pinIO_pinsA_in[i] - A0);
-            Serial.print(")");
-        }
-    }
-    io_ln;
-    for (i = 0; i < pinIO_Max_switches; i++)
-    {
+    io_print("GPIO input(switch) pins: ");
+    io_println_n(numberInPins);
+    for (i = 0; i < numberInPins; i++) {
         debugSwitch(i);
     }
+}
+
+void setupPinIO() {
+    SetUpInputs();
+}
+
+void pinIO_SwitchesExe() {
+    SwitchesExe();
 }
