@@ -1,7 +1,7 @@
 /**
  * @file I.h
  * @author jmnc2 (you@domain.com)
- * @brief handels local input MCU pins.(connected to a switch.)
+ * @brief handles local input MCU pins.(connected to a switch.)
  * @version 0.1
  * @date 2022-02-03
  *
@@ -41,7 +41,7 @@
  * switchState[i]  : 0b0000 0000
  *  state          : 0b0000 0001  Fully updated state, including updated mqtt etc. 0 = off 1 = on
  *  current state  : 0b0000 0010  State at last check. Current switch state but count may still be updating etc. 0 = off 1 = on
- *  change count   : 0b0000 1100  Number of changes within 0.1 and 2 seconds betwean changes. max changes 8, maybe 7. Use difference of bit 1 and 2 as first bit
+ *  change count   : 0b0000 1100  Number of changes within 0.1 and 2 seconds between changes. max changes 8, maybe 7. Use difference of bit 1 and 2 as first bit
  *  time         : 0b1111 0000 time in 1/8 seconds since last change. Within approx 1/8 second
  **/
 extern byte pinIO_Max_switches;

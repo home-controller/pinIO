@@ -89,7 +89,7 @@ void debugSwitch(byte i)
   Serial.print((pinIO_switchState[i] >> 2) & 0b11, BIN);
   Serial.print(F("),\e[93m 1/8s: b"));
   Serial.print((pinIO_switchState[i]) >> 4, BIN);
-  Serial.print(F("\e[97m, switchState[i]: "));
+  Serial.print(F("\e[97m, pinIO_switchState[i]: "));
   Serial.print(pinIO_switchState[i], BIN);
   Serial.print(F(", analogRead: "));
   Serial.println(analogRead(pinIO_pinsA_in[i]));
@@ -137,7 +137,7 @@ void getInputStates()
  * switchState[i]:
  *  state          : 0b0000 0001  Fully updated state, including updated mqtt etc. 0 = off 1 = on
  *  current state  : 0b0000 0010  State at last check. Current switch state but count may still be updating etc. 0 = off 1 = on
- *  change count   : 0b0000 1100  Number of changes within 0.1 and 2 seconds betwean changes. max changes 8, maybe 7. Use difference of bit 1 and 2 as first bit
+ *  change count   : 0b0000 1100  Number of changes within 0.1 and 2 seconds between changes. max changes 8, maybe 7. Use difference of bit 1 and 2 as first bit
  *  time         : 0b1111 0000 time in 1/8 seconds since last change. Within approx 1/8 second
  */
 #ifdef _debug_switches_gis
@@ -160,12 +160,12 @@ void getInputStates()
  * stateVar      : 0b0000 0000
  *  state          : 0b0000 0001  Fully updated state, including updated mqtt etc. 0 = off 1 = on
  *  current state  : 0b0000 0010  State at last check. Current switch state but count may still be updating etc. 0 = off 1 = on
- *  change count   : 0b0000 1100  Number of changes within 0.1 and 2 seconds betwean changes. max changes 8, maybe 7. Use difference of bit 1 and 2 as first bit
+ *  change count   : 0b0000 1100  Number of changes within 0.1 and 2 seconds between changes. max changes 8, maybe 7. Use difference of bit 1 and 2 as first bit
  *  time         : 0b1111 0000 time in 1/8 seconds since last change. Within approx 1/8 second
  **/
 
 /**
- * @brief Called by SwitchesExe(); affter a GPIO pin used for a input switch has been switched.
+ * @brief Called by SwitchesExe(); after a GPIO pin used for a input switch has been switched.
  *
  * @param sw_i index into pinIO_pinsA_in[]
  * @param count Number of times the Switch was flicked
@@ -173,7 +173,7 @@ void getInputStates()
  */
 void Switched(byte sw_i, byte count, byte state)
 { // Count 0 is quick on. sw = 0 for first switch
-  // some of this should be moved to elseware this lib should just keep track of what switch was switched and
+  // some of this should be moved to elsewhere this lib should just keep track of what switch was switched and
   // maybe call a function pointer to handle any switching of lights etc.
   Serial.println(F("Called Switched"));
   gotInputPin( ioLocalPin, sw_i, count, state);
@@ -188,7 +188,7 @@ void SwitchesExe()
   // Serial.println(F("entering SwitchesExe()") );
 #endif
   if ((millis() - lastMils) < (1000 / 8)) // 1/8th of a second. If called just under 1/8 of a second and again 1/8 later.
-  {                                       // Could be 1/4 second betwean switch checks even when called at close to every 1/8th second.
+  {                                       // Could be 1/4 second between switch checks even when called at close to every 1/8th second.
     return;
   }
   getInputStates(); // update the curent switch state bit. Just that, no turning on lights etc.
@@ -242,7 +242,7 @@ void SwitchesExe()
       } //
     }
     if (count1 >= 4 || time1 >= 0b1111)
-    { // reched max change count or time since last change > 2 seconds
+    { // reached max change count or time since last change > 2 seconds
 #ifdef _debug_switches
       Serial.print(F("Switch state update "));
       Serial.print(F(", count1 = "));
