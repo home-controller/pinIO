@@ -18,9 +18,9 @@
  *    pinMode()
  *    digitalWrite()
  *    digitalRead() 
- * and possably adding the analog equivalents later.
+ * and possibly adding the analog equivalents later.
  * 
- * And also the bitmap vertions for each port register.
+ * And also the bitmap versions for each port register.
  */
 
 /*
@@ -65,7 +65,7 @@ class I2C_expander_IO {// i.e. MCP23017 expander controlling relays or reading s
     //              :B00001000 = A2 pin / jumper / solder link etc
     //              :B00000001 = R/W bit, if 0 write or if 1 read
     byte i2c_control = 0b00100000;// fixed device addr(B0010 << 4) + (A0 << 1) + (A1 << 2) + (A2 << 3) + R/W bit
-    word io_input = 0xff00; //(B00000000 << 8) + B11111111; // PAx set to Output(eg. switch relays) and PBx set to input(conect to switches) by default.
+    word io_input = 0xff00; //(B00000000 << 8) + B11111111; // PAx set to Output(eg. switch relays) and PBx set to input(connect to switches) by default.
     byte lastIoValueA = 0; // If the IO pins are high or low
     byte lastIoValueB = 0; // If the IO pins are high or low
     

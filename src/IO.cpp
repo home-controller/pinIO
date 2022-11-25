@@ -8,8 +8,8 @@
  * @copyright Copyright (c) 2022
  * 
  */
-#include <Wire.h>
 #include <Arduino.h>
+#include <Wire.h>
 #include "IO.h"
 
 /**

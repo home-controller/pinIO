@@ -3,7 +3,7 @@
 
 #include <defs.h>
 #include <Arduino.h>
-#include "O.h"
+//#include "O.h"
 #include <avr/wdt.h>
 //#include <EEPROM.h>
 //#include "mqtt.h"
