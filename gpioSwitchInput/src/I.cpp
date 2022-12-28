@@ -3,6 +3,7 @@
 
 #include <defs.h>
 #include <Arduino.h>
+//#include </home/jmnc2/.platformio/packages/framework-arduino-avr/cores/arduino/HardwareSerial.h>
 //#include "O.h"
 #include <avr/wdt.h>
 //#include <EEPROM.h>
