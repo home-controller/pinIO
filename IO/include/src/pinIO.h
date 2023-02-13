@@ -34,7 +34,7 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include <pasStr.h>
-#include "I.h"          //handels local input MCU pins.(connected to a switch.)
+#include "gpioSwitchInput.h"          //handels local input MCU pins.(connected to a switch.)
 //#include "O.h"
 //#include "IO.h"         //Expander chip IO, only i2c MCP23017 for now.
 
